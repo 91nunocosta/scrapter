@@ -18,6 +18,12 @@ class UpdatesRegister:
     def __init__(self, db_config):
         self.db_config = db_config
 
+    def open_db(self):
+        pass
+
+    def close_db(self):
+        pass
+
     def start(self, spider):
         pass
 
