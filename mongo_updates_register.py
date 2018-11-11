@@ -1,8 +1,9 @@
 from datetime import datetime
 
 import pymongo
-from .updates_register import CrawlStatus, UpdatesRegister, Crawl
-from mongomock import MongoClient
+from pymongo import MongoClient
+
+from .updates_register import Crawl, CrawlStatus, UpdatesRegister
 
 
 class MissingConfigurationParameter(Exception):
