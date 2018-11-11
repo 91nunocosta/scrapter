@@ -63,7 +63,17 @@ class MongoUpdatesRegister:
         )
 
     def last(self, spider):
-        pass
+        updates = self.get_updates().find({
+            'spiders': spider,
+            'status': CrawlStatus.SUCCESS.value
+        }).sort('start', pymongo.DESCENDING).limit(1)
+        update = updates[0]
+        return Crawl(
+            update['spiders'],
+            CrawlStatus(update['status']),
+            update['start'],
+            update['end']
+        )
 
     def get_updates(self):
         return self.database['updates']
