@@ -9,9 +9,6 @@ class ConfiguredMongoMixin:
 
     REQUIRED_PARAMETERS = ['MONGO_HOST', 'MONGO_PORT', 'MONGO_DB']
 
-    def configure_mongo(self, config):
-        self.db_config = config
-
     def open_db(self):
         self.__validate_db_config()
         client = MongoClient(
