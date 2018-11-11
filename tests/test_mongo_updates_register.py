@@ -73,33 +73,49 @@ class TestMongoUpdatesRegister(TestCase):
         self.assertEqual(register['status'], str(CrawlStatus.STARTED))
         self.assertAlmostEqual(register['start'], start_date, delta=timedelta(seconds=1))
 
-    @mongomock.patch(servers=(('mongodb', 27017),))
-    def test_can_succeed(self):
+    def create_update(self):
         db_config = {
             'MONGO_HOST': 'mongodb',
             'MONGO_PORT': 27017,
             'MONGO_DB': 'db'
         }
-        register = MongoUpdatesRegister(db_config)
-        register.open_db()
+        self.register = MongoUpdatesRegister(db_config)
+        self.register.open_db()
         start_date = datetime(1, 1, 1)
-        _id = register.database['updates'].insert_one({
+        _id = self.register.database['updates'].insert_one({
             'spiders': ['spider1'],
             'status': str(CrawlStatus.STARTED),
             'start': start_date
         }).inserted_id
-        register.database['updates'].insert_one({
+        self.register.database['updates'].insert_one({
             'spiders': ['spider2'],
             'status': str(CrawlStatus.STARTED),
             'start': datetime.now()
         })
-        end_date = datetime.now()
-        register.succeed(_id)
+        return _id, start_date
 
-        registers = list(register.database['updates'].find({'_id': _id}))
+    @mongomock.patch(servers=(('mongodb', 27017),))
+    def test_can_succeed(self):
+        _id, start_date = self.create_update()
+        end_date = datetime.now()
+        self.register.succeed(_id)
+        registers = list(self.register.database['updates'].find({'_id': _id}))
         self.assertEqual(len(registers), 1)
         register = registers[0]
         self.assertListEqual(register['spiders'], ['spider1'])
         self.assertEqual(register['status'], str(CrawlStatus.SUCCESS))
+        self.assertAlmostEqual(register['start'], start_date, delta=timedelta(seconds=1))
+        self.assertAlmostEqual(register['end'], end_date, delta=timedelta(seconds=1))
+
+    @mongomock.patch(servers=(('mongodb', 27017),))
+    def test_can_fail(self):
+        _id, start_date = self.create_update()
+        end_date = datetime.now()
+        self.register.fail(_id)
+        registers = list(self.register.database['updates'].find({'_id': _id}))
+        self.assertEqual(len(registers), 1)
+        register = registers[0]
+        self.assertListEqual(register['spiders'], ['spider1'])
+        self.assertEqual(register['status'], str(CrawlStatus.FAILED))
         self.assertAlmostEqual(register['start'], start_date, delta=timedelta(seconds=1))
         self.assertAlmostEqual(register['end'], end_date, delta=timedelta(seconds=1))

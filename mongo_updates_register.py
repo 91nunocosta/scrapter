@@ -3,6 +3,7 @@ from mongomock import MongoClient
 
 from datetime import datetime
 
+
 class MissingConfigurationParameter(Exception):
 
     def __init__(self, parameter):
@@ -39,7 +40,15 @@ class MongoUpdatesRegister:
         }).inserted_id
 
     def fail(self, _id):
-        pass
+        self.get_updates().update_one(
+            {'_id': _id},
+            {
+                '$set': {
+                    'status': str(CrawlStatus.FAILED),
+                    'end': datetime.now()
+                }
+            }
+        )
 
     def succeed(self, _id):
         self.get_updates().update_one(
