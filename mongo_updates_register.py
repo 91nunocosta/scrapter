@@ -32,17 +32,25 @@ class MongoUpdatesRegister:
         pass
 
     def start(self, spider):
-        self.get_updates().insert_one({
+        return self.get_updates().insert_one({
             'spiders': [spider],
             'status': str(CrawlStatus.STARTED),
             'start': datetime.now()
-        })
+        }).inserted_id
 
-    def fail(self, spider):
+    def fail(self, _id):
         pass
 
-    def succeed(self, spider):
-        pass
+    def succeed(self, _id):
+        self.get_updates().update_one(
+            {'_id': _id},
+            {
+                '$set': {
+                    'status': str(CrawlStatus.SUCCESS),
+                    'end': datetime.now()
+                }
+            }
+        )
 
     def last(self, spider):
         pass
