@@ -1,9 +1,11 @@
 from pymongo import MongoClient
 
+
 class MissingConfigurationParameter(Exception):
 
     def __init__(self, parameter):
         super().__init__('{} parameter is missing in the configuration.'.format(parameter))
+
 
 class ConfiguredMongoMixin:
 
