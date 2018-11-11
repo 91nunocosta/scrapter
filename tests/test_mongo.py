@@ -16,8 +16,7 @@ class TestConfiguredMongoMixin(TestCase):
             'MONGO_DB': 'db'
         }
         register = scrapter.mongo.ConfiguredMongoMixin()
-        register.configure_mongo(db_config)
-        register.open_db()
+        register.open_db(db_config)
         self.assertIsNotNone(register.database)
         self.assertEqual(register.database.name, 'db')
         self.assertEqual(register.database.client.host, 'mongo')
@@ -32,25 +31,22 @@ class TestConfiguredMongoMixin(TestCase):
             'MONGO_PORT': 27017,
         }
         register = scrapter.mongo.ConfiguredMongoMixin()
-        register.configure_mongo(db_config)
         with self.assertRaises(scrapter.mongo.MissingConfigurationParameter) as cm:
-            register.open_db()
+            register.open_db(db_config)
         self.assertTrue('MONGO_DB' in str(cm.exception))
         db_config = {
             'MONGO_HOST': 'mongo',
             'MONGO_DB': 'db',
         }
         register = scrapter.mongo.ConfiguredMongoMixin()
-        register.configure_mongo(db_config)
         with self.assertRaises(scrapter.mongo.MissingConfigurationParameter) as cm:
-            register.open_db()
+            register.open_db(db_config)
         self.assertTrue('MONGO_PORT' in str(cm.exception))
         db_config = {
             'MONGO_PORT': 27017,
             'MONGO_DB': 'db'
         }
         register = scrapter.mongo.ConfiguredMongoMixin()
-        register.configure_mongo(db_config)
         with self.assertRaises(scrapter.mongo.MissingConfigurationParameter) as cm:
-            register.open_db()
+            register.open_db(db_config)
         self.assertTrue('MONGO_HOST' in str(cm.exception))
