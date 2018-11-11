@@ -170,3 +170,9 @@ class TestMongoUpdatesRegister(TestCase):
         self.assertEqual(last.status, CrawlStatus.SUCCESS)
         self.assertEqual(last.start, datetime(2018, 1, 1, 2))
         self.assertEqual(last.end, datetime(2018, 1, 1, 12))
+
+    @mongomock.patch(servers=(('mongodb', 27017),))
+    def test_can_get_last_without_no_succeed(self):
+        self.create_register()
+        last = self.register.last('spider1')
+        self.assertIsNone(last)

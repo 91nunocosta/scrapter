@@ -67,6 +67,8 @@ class MongoUpdatesRegister:
             'spiders': spider,
             'status': CrawlStatus.SUCCESS.value
         }).sort('start', pymongo.DESCENDING).limit(1)
+        if updates.count() is 0:
+            return None
         update = updates[0]
         return Crawl(
             update['spiders'],
