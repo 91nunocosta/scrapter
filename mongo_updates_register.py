@@ -1,7 +1,8 @@
-from .updates_register import UpdatesRegister, CrawlStatus
-from mongomock import MongoClient
-
 from datetime import datetime
+
+import pymongo
+from .updates_register import CrawlStatus, UpdatesRegister, Crawl
+from mongomock import MongoClient
 
 
 class MissingConfigurationParameter(Exception):
@@ -35,7 +36,7 @@ class MongoUpdatesRegister:
     def start(self, spider):
         return self.get_updates().insert_one({
             'spiders': [spider],
-            'status': str(CrawlStatus.STARTED),
+            'status': CrawlStatus.STARTED.value,
             'start': datetime.now()
         }).inserted_id
 
@@ -44,7 +45,7 @@ class MongoUpdatesRegister:
             {'_id': _id},
             {
                 '$set': {
-                    'status': str(CrawlStatus.FAILED),
+                    'status': CrawlStatus.FAILED.value,
                     'end': datetime.now()
                 }
             }
@@ -55,7 +56,7 @@ class MongoUpdatesRegister:
             {'_id': _id},
             {
                 '$set': {
-                    'status': str(CrawlStatus.SUCCESS),
+                    'status': CrawlStatus.SUCCESS.value,
                     'end': datetime.now()
                 }
             }

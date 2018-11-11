@@ -70,10 +70,11 @@ class TestMongoUpdatesRegister(TestCase):
         self.assertEqual(len(registers), 1)
         register = registers[0]
         self.assertListEqual(register['spiders'], ['spider1'])
-        self.assertEqual(register['status'], str(CrawlStatus.STARTED))
-        self.assertAlmostEqual(register['start'], start_date, delta=timedelta(seconds=1))
+        self.assertEqual(register['status'], CrawlStatus.STARTED.value)
+        self.assertAlmostEqual(
+            register['start'], start_date, delta=timedelta(seconds=1))
 
-    def create_update(self):
+    def create_register(self):
         db_config = {
             'MONGO_HOST': 'mongodb',
             'MONGO_PORT': 27017,
@@ -81,15 +82,18 @@ class TestMongoUpdatesRegister(TestCase):
         }
         self.register = MongoUpdatesRegister(db_config)
         self.register.open_db()
+
+    def create_update(self):
+        self.create_register()
         start_date = datetime(1, 1, 1)
         _id = self.register.database['updates'].insert_one({
             'spiders': ['spider1'],
-            'status': str(CrawlStatus.STARTED),
+            'status': CrawlStatus.STARTED.value,
             'start': start_date
         }).inserted_id
         self.register.database['updates'].insert_one({
             'spiders': ['spider2'],
-            'status': str(CrawlStatus.STARTED),
+            'status': CrawlStatus.STARTED.value,
             'start': datetime.now()
         })
         return _id, start_date
@@ -103,9 +107,11 @@ class TestMongoUpdatesRegister(TestCase):
         self.assertEqual(len(registers), 1)
         register = registers[0]
         self.assertListEqual(register['spiders'], ['spider1'])
-        self.assertEqual(register['status'], str(CrawlStatus.SUCCESS))
-        self.assertAlmostEqual(register['start'], start_date, delta=timedelta(seconds=1))
-        self.assertAlmostEqual(register['end'], end_date, delta=timedelta(seconds=1))
+        self.assertEqual(register['status'], CrawlStatus.SUCCESS.value)
+        self.assertAlmostEqual(
+            register['start'], start_date, delta=timedelta(seconds=1))
+        self.assertAlmostEqual(
+            register['end'], end_date, delta=timedelta(seconds=1))
 
     @mongomock.patch(servers=(('mongodb', 27017),))
     def test_can_fail(self):
@@ -116,6 +122,9 @@ class TestMongoUpdatesRegister(TestCase):
         self.assertEqual(len(registers), 1)
         register = registers[0]
         self.assertListEqual(register['spiders'], ['spider1'])
-        self.assertEqual(register['status'], str(CrawlStatus.FAILED))
-        self.assertAlmostEqual(register['start'], start_date, delta=timedelta(seconds=1))
-        self.assertAlmostEqual(register['end'], end_date, delta=timedelta(seconds=1))
+        self.assertEqual(register['status'], CrawlStatus.FAILED.value)
+        self.assertAlmostEqual(
+            register['start'], start_date, delta=timedelta(seconds=1))
+        self.assertAlmostEqual(
+            register['end'], end_date, delta=timedelta(seconds=1))
+
