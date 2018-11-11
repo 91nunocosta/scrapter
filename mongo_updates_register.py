@@ -1,6 +1,7 @@
-from .updates_register import UpdatesRegister
+from .updates_register import UpdatesRegister, CrawlStatus
 from mongomock import MongoClient
 
+from datetime import datetime
 
 class MissingConfigurationParameter(Exception):
 
@@ -31,7 +32,11 @@ class MongoUpdatesRegister:
         pass
 
     def start(self, spider):
-        pass
+        self.get_updates().insert_one({
+            'spiders': [spider],
+            'status': str(CrawlStatus.STARTED),
+            'start': datetime.now()
+        })
 
     def fail(self, spider):
         pass
@@ -41,3 +46,6 @@ class MongoUpdatesRegister:
 
     def last(self, spider):
         pass
+
+    def get_updates(self):
+        return self.database['updates']

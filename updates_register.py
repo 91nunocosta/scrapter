@@ -1,7 +1,6 @@
 from enum import Enum
 
 class CrawlStatus(Enum):
-    CREATED = 'created'
     STARTED = 'started'
     SUCCESS = 'success'
     FAILED = 'failed'
