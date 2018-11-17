@@ -1,6 +1,9 @@
 from abc import ABC, abstractmethod
 
+from pymongo import collection
+
 from scrapter.mongo import ConfiguredMongoMixin
+
 
 class UpdatePipeline():
 
@@ -28,8 +31,9 @@ class MongoUpdatePipeline(ConfiguredMongoMixin, UpdatePipeline):
     def __init__(self, db_config):
         self.db_config = db_config
 
-    def get_collection(self, item):
-        pass
-
     def update(self, item):
-        pass
+        collection = self.database[item.collection]
+        key = item.key()
+        _filter = {key: item[key]}
+        delete_result = collection.delete_many(_filter)
+        collection.insert_one(dict(item))

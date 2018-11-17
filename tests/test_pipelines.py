@@ -1,3 +1,4 @@
+from datetime import datetime, timedelta
 from unittest import TestCase
 
 import mongomock
@@ -6,6 +7,7 @@ import scrapter.pipelines
 from scrapter import pipelines
 from scrapter.mongo import ConfiguredMongoMixin
 
+from scrapy import Field, Item
 
 class UpdatePipelineExample(scrapter.pipelines.UpdatePipeline):
 
@@ -42,6 +44,16 @@ class TestUpdatePipeline(TestCase):
         self.update_pipeline.process_item('item')
         self.assertEqual(self.update_pipeline.updated, 'item')
 
+
+class ExampleItem(Item):
+    collection = 'items'
+    field1 = Field(key=True)
+    field2 = Field()
+    field3 = Field()
+
+    def key(self):
+        return 'field1'
+
 class TestMongoUpdatePipeline(TestCase):
 
     @mongomock.patch(servers=(('mongodb', 27017),))
@@ -60,3 +72,16 @@ class TestMongoUpdatePipeline(TestCase):
         self.pipeline.open_spider(None)
         self.assertTrue(self.pipeline.database)
         self.assertIsInstance(self.pipeline.database, mongomock.database.Database)
+
+    @mongomock.patch(servers=(('mongodb', 2701),))
+    def test_can_update(self):
+        client = mongomock.MongoClient('mongodb', port=27017)
+        self.pipeline.database = client['db']
+        item = ExampleItem()
+        item['field1'] = '1'
+        item['field2'] = 'value'
+        self.pipeline.update(item)
+        saved_item = self.pipeline.database['items'].find_one({'field1': '1'})
+        self.assertEqual(saved_item['field1'], '1')
+        self.assertEqual(saved_item['field2'], 'value')
+        # self.assertAlsmostEqual(saved_item['_updated'], datetime.now(), timedelta(seconds=1))
