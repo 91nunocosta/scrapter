@@ -7,12 +7,19 @@ import scrapter.pipelines
 from scrapter import pipelines
 from scrapter.mongo import ConfiguredMongoMixin
 
-from scrapy import Field, Item
+from scrapy import Field, Item, Spider
+from scrapy.crawler import Crawler
+from scrapy.settings import Settings
+
+class SpiderExample(Spider):
+    pass
 
 class UpdatePipelineExample(scrapter.pipelines.UpdatePipeline):
 
-    def __init__(self):
-        super().__init__()
+    parameters = ['p1', 'p2', 'p3']
+
+    def __init__(self, config):
+        super().__init__(config)
         self.opened = False
         self.closed = False
         self.updated = None
@@ -30,7 +37,18 @@ class UpdatePipelineExample(scrapter.pipelines.UpdatePipeline):
 class TestUpdatePipeline(TestCase):
 
     def setUp(self):
-        self.update_pipeline = UpdatePipelineExample()
+        self.update_pipeline = UpdatePipelineExample({})
+
+    def test_can_be_created_from_crawler(self):
+        config = {
+            'p1': 'v1',
+            'p2': 'v2',
+            'p3': 'v3'
+        }
+        settings = Settings(config)
+        crawler = Crawler(SpiderExample, settings)
+        pipeline = UpdatePipelineExample.from_crawler(crawler)
+        self.assertDictEqual(pipeline.config, config)
 
     def test_can_open_spider(self):
         self.update_pipeline.open_spider(None)

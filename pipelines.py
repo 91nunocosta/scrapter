@@ -1,8 +1,20 @@
 from datetime import datetime
+from symbol import parameters
 
 from scrapter.mongo import ConfiguredMongoMixin
 
+
 class UpdatePipeline():
+
+    @classmethod
+    def from_crawler(cls, crawler):
+        config = {}
+        for parameter in cls.parameters:
+            config[parameter] = crawler.settings.get(parameter)
+        return cls(config)
+
+    def __init__(self, config):
+        self.config = config
 
     def open_spider(self, spider):
         self.open_db()
@@ -26,6 +38,7 @@ class UpdatePipeline():
 class MongoUpdatePipeline(ConfiguredMongoMixin, UpdatePipeline):
 
     def __init__(self, db_config):
+        super().__init__(db_config)
         self.db_config = db_config
 
     def _filter(self, item):
