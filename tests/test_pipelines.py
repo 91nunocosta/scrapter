@@ -56,7 +56,7 @@ class ExampleItem(Item):
     _previous = Field()
 
     def key(self):
-        return 'field1'
+        return ['field1', 'field2']
 
 class TestMongoUpdatePipeline(TestCase):
 
@@ -76,6 +76,13 @@ class TestMongoUpdatePipeline(TestCase):
         self.pipeline.open_spider(None)
         self.assertTrue(self.pipeline.database)
         self.assertIsInstance(self.pipeline.database, mongomock.database.Database)
+
+    def test_can_get_filter(self):
+        item = ExampleItem()
+        item['field1'] = 1
+        item['field2'] = 2
+        item['field3'] = 3
+        self.assertDictEqual(self.pipeline._filter(item), {'field1': 1, 'field2': 2})
 
     @mongomock.patch(servers=(('mongodb', 2701),))
     def test_can_update(self):
