@@ -51,6 +51,10 @@ class ExampleItem(Item):
     field2 = Field()
     field3 = Field()
 
+    _created = Field()
+    _updated = Field()
+    _previous = Field()
+
     def key(self):
         return 'field1'
 
@@ -84,4 +88,4 @@ class TestMongoUpdatePipeline(TestCase):
         saved_item = self.pipeline.database['items'].find_one({'field1': '1'})
         self.assertEqual(saved_item['field1'], '1')
         self.assertEqual(saved_item['field2'], 'value')
-        # self.assertAlsmostEqual(saved_item['_updated'], datetime.now(), timedelta(seconds=1))
+        self.assertAlmostEqual(saved_item['_updated'], datetime.now(), delta=timedelta(seconds=1))

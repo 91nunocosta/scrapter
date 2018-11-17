@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+from datetime import datetime
 
 from pymongo import collection
 
@@ -36,4 +37,5 @@ class MongoUpdatePipeline(ConfiguredMongoMixin, UpdatePipeline):
         key = item.key()
         _filter = {key: item[key]}
         delete_result = collection.delete_many(_filter)
+        item['_updated'] = datetime.now()
         collection.insert_one(dict(item))
