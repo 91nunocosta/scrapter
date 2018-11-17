@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 
 from scrapter.mongo import ConfiguredMongoMixin
 
-class UpdatePipeline(ABC):
+class UpdatePipeline():
 
     def open_spider(self, spider):
         self.open_db()
@@ -13,23 +13,23 @@ class UpdatePipeline(ABC):
     def process_item(self, item):
         self.update(item)
 
-    @abstractmethod
     def open_db(self):
         pass
 
-    @abstractmethod
     def close_db(self):
         pass
 
-    @abstractmethod
     def update(self, item):
         pass
 
 
-class MongoUpdatePipeline(UpdatePipeline, ConfiguredMongoMixin):
+class MongoUpdatePipeline(ConfiguredMongoMixin, UpdatePipeline):
+
+    def __init__(self, db_config):
+        self.db_config = db_config
 
     def get_collection(self, item):
         pass
 
-class ReplaceMongoUpdatePipeline(MongoUpdatePipeline):
-    pass
+    def update(self, item):
+        pass

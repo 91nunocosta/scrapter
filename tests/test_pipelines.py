@@ -1,7 +1,13 @@
 from unittest import TestCase
-from scrapter.pipelines import UpdatePipeline, MongoUpdatePipeline, ReplaceMongoUpdatePipeline
 
-class UpdatePipelineExample(UpdatePipeline):
+import mongomock
+
+import scrapter.pipelines
+from scrapter import pipelines
+from scrapter.mongo import ConfiguredMongoMixin
+
+
+class UpdatePipelineExample(scrapter.pipelines.UpdatePipeline):
 
     def __init__(self):
         super().__init__()
@@ -37,8 +43,20 @@ class TestUpdatePipeline(TestCase):
         self.assertEqual(self.update_pipeline.updated, 'item')
 
 class TestMongoUpdatePipeline(TestCase):
-    pass
 
+    @mongomock.patch(servers=(('mongodb', 27017),))
+    def setUp(self):
+        import scrapter.pipelines
+        db_config = {
+            'MONGO_HOST': 'mongo',
+            'MONGO_PORT': 27017,
+            'MONGO_DB': 'db'
+        }
+        self.pipeline = scrapter.pipelines.MongoUpdatePipeline(db_config)
+        self.assertDictEqual(self.pipeline.db_config, db_config)
 
-class TestReplaceMongoUpdatePipeline(TestCase):
-    pass
+    @mongomock.patch(servers=(('mongodb', 27017),))
+    def test_can_open_db(self):
+        self.pipeline.open_spider(None)
+        self.assertTrue(self.pipeline.database)
+        self.assertIsInstance(self.pipeline.database, mongomock.database.Database)
