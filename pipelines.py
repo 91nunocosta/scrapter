@@ -1,10 +1,6 @@
-from abc import ABC, abstractmethod
 from datetime import datetime
 
-from pymongo import collection
-
 from scrapter.mongo import ConfiguredMongoMixin
-
 
 class UpdatePipeline():
 
@@ -37,7 +33,8 @@ class MongoUpdatePipeline(ConfiguredMongoMixin, UpdatePipeline):
 
     def update(self, item):
         collection = self.database[item.collection]
-        _filter = self._filter(item) 
-        delete_result = collection.delete_many(_filter)
-        item['_updated'] = datetime.now()
-        collection.insert_one(dict(item))
+        _filter = self._filter(item)
+        collection.delete_many(_filter)
+        updated_item = dict(item)
+        updated_item['_updated'] = datetime.now()
+        collection.insert_one(updated_item)

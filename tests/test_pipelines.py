@@ -51,10 +51,6 @@ class ExampleItem(Item):
     field2 = Field()
     field3 = Field()
 
-    _created = Field()
-    _updated = Field()
-    _previous = Field()
-
     def key(self):
         return ['field1', 'field2']
 
