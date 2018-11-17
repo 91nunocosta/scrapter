@@ -1,27 +1,44 @@
-class UpdatePipeline:
+from unittest import TestCase
+from scrapter.pipelines import UpdatePipeline, MongoUpdatePipeline, ReplaceMongoUpdatePipeline
 
-    def open_spider(self, spider):
-        pass
+class UpdatePipelineExample(UpdatePipeline):
 
-    def close_spider(self, spider):
-        pass
-
-    def from_crawler(self, crawler):
-        pass
-
-    def process_item(self, item, spider):
-        pass
-
-class ReplaceMongoUpdatePipeline(UpdatePipeline):
+    def __init__(self):
+        super().__init__()
+        self.opened = False
+        self.closed = False
+        self.updated = None
 
     def open_db(self):
-        pass
+        self.opened = True
 
     def close_db(self):
-        pass
+        self.closed = True
 
-    def belongs(item):
-        pass
+    def update(self, item):
+        self.updated = item
 
-    def update(item):
-        pass
+
+class TestUpdatePipeline(TestCase):
+
+    def setUp(self):
+        self.update_pipeline = UpdatePipelineExample()
+
+    def test_can_open_spider(self):
+        self.update_pipeline.open_spider(None)
+        self.assertTrue(self.update_pipeline.opened)
+
+    def test_can_close_spider(self):
+        self.update_pipeline.close_spider(None)
+        self.assertTrue(self.update_pipeline.closed)
+
+    def test_can_process_item(self):
+        self.update_pipeline.process_item('item')
+        self.assertEqual(self.update_pipeline.updated, 'item')
+
+class TestMongoUpdatePipeline(TestCase):
+    pass
+
+
+class TestReplaceMongoUpdatePipeline(TestCase):
+    pass
