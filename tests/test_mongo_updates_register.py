@@ -17,12 +17,12 @@ class TestMongoUpdatesRegister(TestCase):
     def setUp(self):
         import scrapter
         scrapter.mongo_updates_register.MongoClient = mongomock.MongoClient
-        db_config = {
+        config = {
             'MONGO_HOST': 'mongodb',
             'MONGO_PORT': 27017,
             'MONGO_DB': 'db'
         }
-        self.register = scrapter.mongo_updates_register.MongoUpdatesRegister(db_config)
+        self.register = scrapter.mongo_updates_register.MongoUpdatesRegister(config)
         self.register.open_db()
 
     @mongomock.patch(servers=(('mongodb', 27017),))
@@ -36,27 +36,27 @@ class TestMongoUpdatesRegister(TestCase):
     def test_cant_open_db_with_missing_configs(self):
         import scrapter
         scrapter.mongo.MongoClient = mongomock.MongoClient
-        db_config = {
+        config = {
             'MONGO_HOST': 'mongodb',
             'MONGO_PORT': 27017,
         }
-        register = scrapter.mongo_updates_register.MongoUpdatesRegister(db_config)
+        register = scrapter.mongo_updates_register.MongoUpdatesRegister(config)
         with self.assertRaises(MissingConfigurationParameter) as cm:
             register.open_db()
         self.assertTrue('MONGO_DB' in str(cm.exception))
-        db_config = {
+        config = {
             'MONGO_HOST': 'mongodb',
             'MONGO_DB': 'db',
         }
-        register = MongoUpdatesRegister(db_config)
+        register = MongoUpdatesRegister(config)
         with self.assertRaises(MissingConfigurationParameter) as cm:
             register.open_db()
         self.assertTrue('MONGO_PORT' in str(cm.exception))
-        db_config = {
+        config = {
             'MONGO_PORT': 27017,
             'MONGO_DB': 'db'
         }
-        register = MongoUpdatesRegister(db_config)
+        register = MongoUpdatesRegister(config)
         with self.assertRaises(MissingConfigurationParameter) as cm:
             register.open_db()
         self.assertTrue('MONGO_HOST' in str(cm.exception))

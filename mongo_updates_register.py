@@ -16,8 +16,8 @@ class MongoUpdatesRegister(ConfiguredMongoMixin):
 
     REQUIRED_PARAMETERS = ['MONGO_HOST', 'MONGO_PORT', 'MONGO_DB']
 
-    def __init__(self, db_config):
-        self.db_config = db_config
+    def __init__(self, config):
+        self.config = config
         self.database = None
 
     def start(self, spider):

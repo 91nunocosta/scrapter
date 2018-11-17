@@ -12,12 +12,12 @@ class ConfiguredMongoMixin:
     REQUIRED_PARAMETERS = ['MONGO_HOST', 'MONGO_PORT', 'MONGO_DB']
 
     def open_db(self):
-        self.__validate_db_config()
+        self.__validate_config()
         client = MongoClient(
-            host=self.db_config['MONGO_HOST'], port=self.db_config['MONGO_PORT'])
-        self.database = client[self.db_config['MONGO_DB']]
+            host=self.config['MONGO_HOST'], port=self.config['MONGO_PORT'])
+        self.database = client[self.config['MONGO_DB']]
 
-    def __validate_db_config(self):
+    def __validate_config(self):
         for parameter in ConfiguredMongoMixin.REQUIRED_PARAMETERS:
-            if parameter not in self.db_config:
+            if parameter not in self.config:
                 raise MissingConfigurationParameter(parameter)

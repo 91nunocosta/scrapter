@@ -37,9 +37,8 @@ class UpdatePipeline():
 
 class MongoUpdatePipeline(ConfiguredMongoMixin, UpdatePipeline):
 
-    def __init__(self, db_config):
-        super().__init__(db_config)
-        self.db_config = db_config
+    def __init__(self, config):
+        super().__init__(config)
 
     def _filter(self, item):
         return {key: item[key] for key in item.key()}

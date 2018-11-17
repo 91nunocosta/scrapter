@@ -16,8 +16,8 @@ class Crawl:
 
 class UpdatesRegister:
 
-    def __init__(self, db_config):
-        self.db_config = db_config
+    def __init__(self, config):
+        self.config = config
 
     def open_db(self):
         pass

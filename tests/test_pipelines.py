@@ -77,13 +77,13 @@ class TestMongoUpdatePipeline(TestCase):
     @mongomock.patch(servers=(('mongodb', 27017),))
     def setUp(self):
         import scrapter.pipelines
-        db_config = {
+        config = {
             'MONGO_HOST': 'mongo',
             'MONGO_PORT': 27017,
             'MONGO_DB': 'db'
         }
-        self.pipeline = scrapter.pipelines.MongoUpdatePipeline(db_config)
-        self.assertDictEqual(self.pipeline.db_config, db_config)
+        self.pipeline = scrapter.pipelines.MongoUpdatePipeline(config)
+        self.assertDictEqual(self.pipeline.config, config)
 
     @mongomock.patch(servers=(('mongodb', 27017),))
     def test_can_open_db(self):
