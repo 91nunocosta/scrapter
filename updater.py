@@ -9,11 +9,7 @@ class UpdateStatus(Enum):
 class Updater:
 
     def __init__(self, settings):
-        self.settings = settings
-        self.pipelines = self.__get_spiders(settings)
-
-    def __get_spiders(self, settings):
-        return []
+        self.spiders = settings.get('SPIDERS')
 
     def start(self):
         pass
