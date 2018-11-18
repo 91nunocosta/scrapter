@@ -28,7 +28,8 @@ class Updater:
     def start(self):
         process = CrawlerProcess(self.settings)
         for spider in self.spiders:
-            process.crawl(spider)
+            kwargs = self._spider_args(spider)
+            process.crawl(spider, **kwargs)
         update_id = self.register.start(self.spiders)
         process.start()
         self.register.succeed(update_id)

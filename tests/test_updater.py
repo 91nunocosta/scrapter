@@ -75,3 +75,19 @@ class TestUpdater(TestCase):
         self.assertDictEqual(self.updater._spider_args('spider'), {
             'last': self.start
         })
+
+    def test_can_continue_last_update(self):
+        register = self.register_mock.return_value
+        spider_loader = self.load_spider_mock.return_value
+        crawl_process = self.crawl_mock.return_value
+        start = datetime(2018, 1, 1)
+        end = datetime(2018, 2, 1)
+        register.last.return_value = Crawl('spider',
+                                           CrawlStatus.SUCCESS,
+                                           start,
+                                           end
+                                           )
+        spider_loader.load.return_value = SpiderExampleWithLast
+        self.updater.spiders = ['spider']
+        self.updater.start()
+        crawl_process.crawl.assert_called_with('spider', last=start)
