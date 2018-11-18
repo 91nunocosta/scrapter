@@ -1,14 +1,18 @@
 from enum import Enum
 
+from inspect import signature
+
 from scrapy.crawler import CrawlerProcess
 
 from scrapter.mongo_updates_register import MongoUpdatesRegister
+
 
 class UpdateStatus(Enum):
     CREATED = 'created'
     STARTED = 'started'
     SUCCESS = 'success'
     FAILED = 'failed'
+
 
 class Updater:
 
@@ -24,3 +28,7 @@ class Updater:
         update_id = self.register.start(self.spiders)
         process.start()
         self.register.succeed(update_id)
+
+    def _accepts_last(self, cls):
+        spider_parameters = signature(cls).parameters
+        return 'last' in spider_parameters

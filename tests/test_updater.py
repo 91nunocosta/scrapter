@@ -6,6 +6,15 @@ from unittest.mock import MagicMock, patch
 
 import scrapter.updater
 
+class SpiderExample:
+
+    def __init__(self):
+        pass
+
+class SpiderExampleWithLast:
+
+    def __init__(self, last=None):
+        pass
 
 class TestUpdater(TestCase):
 
@@ -39,3 +48,7 @@ class TestUpdater(TestCase):
         self.updater.start()
         register.start.assert_called_with(['spider1', 'spider2'])
         register.succeed.assert_called_with('1')
+
+    def test_can_check_if_accepts_last(self):
+        self.assertFalse(self.updater._accepts_last(SpiderExample))
+        self.assertTrue(self.updater._accepts_last(SpiderExampleWithLast))
