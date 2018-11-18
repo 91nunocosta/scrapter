@@ -1,28 +1,43 @@
-from codecs import register
 from unittest import TestCase
+
+from datetime import datetime
 
 from scrapy.settings import Settings
 from unittest.mock import MagicMock, patch
 
 import scrapter.updater
+from scrapter.updates_register import Crawl, CrawlStatus
+
 
 class SpiderExample:
 
     def __init__(self):
         pass
 
+
 class SpiderExampleWithLast:
 
     def __init__(self, last=None):
         pass
+
 
 class TestUpdater(TestCase):
 
     def setUp(self):
         self.crawl_patcher = patch('scrapter.updater.CrawlerProcess')
         self.register_patcher = patch('scrapter.updater.MongoUpdatesRegister')
+        self.load_spider_patcher = patch('scrapter.updater.SpiderLoader')
         self.crawl_mock = self.crawl_patcher.start()
         self.register_mock = self.register_patcher.start()
+        self.load_spider_mock = self.load_spider_patcher.start()
+        register = self.register_mock.return_value
+        self.start = datetime(2018, 1, 1)
+        end = datetime(2018, 2, 1)
+        register.last.return_value = Crawl('spider',
+                                           CrawlStatus.SUCCESS,
+                                           self.start,
+                                           end
+                                           )
 
         spiders = ['spider1', 'spider2']
         settings = Settings({
@@ -34,6 +49,7 @@ class TestUpdater(TestCase):
     def tearDown(self):
         self.crawl_patcher.stop()
         self.register_patcher.stop()
+        self.load_spider_patcher.stop()
 
     def test_can_start(self):
         self.updater.start()
@@ -52,3 +68,10 @@ class TestUpdater(TestCase):
     def test_can_check_if_accepts_last(self):
         self.assertFalse(self.updater._accepts_last(SpiderExample))
         self.assertTrue(self.updater._accepts_last(SpiderExampleWithLast))
+
+    def test_can_define_spider_args(self):
+        spider_loader = self.load_spider_mock.return_value
+        spider_loader.load.return_value = SpiderExampleWithLast
+        self.assertDictEqual(self.updater._spider_args('spider'), {
+            'last': self.start
+        })
