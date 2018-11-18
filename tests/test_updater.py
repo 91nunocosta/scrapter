@@ -91,3 +91,26 @@ class TestUpdater(TestCase):
         self.updater.spiders = ['spider']
         self.updater.start()
         crawl_process.crawl.assert_called_with('spider', last=start)
+
+    def test_can_check_if_failed(self):
+        crawler_process = self.crawl_mock.return_value
+        crawler_mock1 = MagicMock()
+        crawler_mock2 = MagicMock()
+        crawler_mock1.stats.get_value.return_value = 'finished'
+        crawler_mock2.stats.get_value.return_value = 'finished'
+        crawler_process.crawlers = [crawler_mock1, crawler_mock2]
+        self.assertFalse(self.updater._failed(crawler_process))
+        crawler_mock1.stats.get_value.return_value = 'failed'
+        self.assertTrue(self.updater._failed(crawler_process))
+
+    def test_can_fail(self):
+        crawler_process = self.crawl_mock.return_value
+        register = self.register_mock.return_value
+        crawler_mock = MagicMock()
+        crawler_mock.stats.get_value.return_value = 'failed'
+        crawler_mock2 = MagicMock()
+        crawler_mock2.stats.get_value.return_value = 'finished'
+        crawler_process.crawlers = [crawler_mock, crawler_mock2]
+        register.start.return_value = '2'
+        self.updater.start()
+        register.fail.assert_called_with('2')

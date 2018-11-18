@@ -1,9 +1,8 @@
 from enum import Enum
-
 from inspect import signature
+from platform import processor
 
 from scrapy.crawler import CrawlerProcess
-
 from scrapy.spiderloader import SpiderLoader
 
 from scrapter.mongo_updates_register import MongoUpdatesRegister
@@ -44,3 +43,7 @@ class Updater:
     def _accepts_last(self, cls):
         spider_parameters = signature(cls).parameters
         return 'last' in spider_parameters
+
+    def _failed(self, process):
+        finish_reasons = [crawler.stats.get_value('finish_reason') for crawler in process.crawlers]
+        return any(reason != 'finished' for reason in finish_reasons)
