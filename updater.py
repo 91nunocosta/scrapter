@@ -1,5 +1,7 @@
 from enum import Enum
 
+from scrapy.crawler import CrawlerProcess
+
 class UpdateStatus(Enum):
     CREATED = 'created'
     STARTED = 'started'
@@ -9,7 +11,11 @@ class UpdateStatus(Enum):
 class Updater:
 
     def __init__(self, settings):
+        self.settings = settings
         self.spiders = settings.get('SPIDERS')
 
     def start(self):
-        pass
+        process = CrawlerProcess(self.settings)
+        for spider in self.spiders:
+            process.crawl(spider)
+        process.start()
