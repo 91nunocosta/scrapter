@@ -104,13 +104,8 @@ class TestUpdater(TestCase):
         self.assertTrue(self.updater._failed(crawler_process))
 
     def test_can_fail(self):
-        crawler_process = self.crawl_mock.return_value
         register = self.register_mock.return_value
-        crawler_mock = MagicMock()
-        crawler_mock.stats.get_value.return_value = 'failed'
-        crawler_mock2 = MagicMock()
-        crawler_mock2.stats.get_value.return_value = 'finished'
-        crawler_process.crawlers = [crawler_mock, crawler_mock2]
         register.start.return_value = '2'
+        self.updater._failed = MagicMock(return_value=True)
         self.updater.start()
         register.fail.assert_called_with('2')

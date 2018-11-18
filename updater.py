@@ -31,7 +31,10 @@ class Updater:
             process.crawl(spider, **kwargs)
         update_id = self.register.start(self.spiders)
         process.start()
-        self.register.succeed(update_id)
+        if self._failed(process):
+            self.register.fail(update_id)
+        else:
+            self.register.succeed(update_id)
 
     def _spider_args(self, spider):
         spider_cls = self.spider_loader.load(spider)
