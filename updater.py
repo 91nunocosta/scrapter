@@ -14,16 +14,28 @@ class UpdateStatus(Enum):
     SUCCESS = 'success'
     FAILED = 'failed'
 
+class MissingSetting(Exception):
+    
+    def __init__(self, parameter):
+        super().__init__('{} setting is missing.'.format(parameter))
 
 class Updater:
 
+    REQUIRED_PARAMETERS = ['MONGO_HOST', 'MONGO_PORT', 'MONGO_DB', 'SPIDERS']
+
     def __init__(self, settings):
+        self.__validate_settings(settings)
         self.settings = settings
         self.spiders = settings.get('SPIDERS')
         self.register = MongoUpdatesRegister(settings)
         self.register.open_db()
         self.spider_loader = SpiderLoader(settings)
         self.last = self.register.last(self.spiders)
+
+    def __validate_settings(self, settings):
+        for parameter in Updater.REQUIRED_PARAMETERS:
+            if parameter not in settings:
+                raise MissingSetting(parameter)
 
     def run(self):
         process = CrawlerProcess(self.settings)

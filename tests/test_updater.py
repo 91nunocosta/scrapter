@@ -1,12 +1,10 @@
-from unittest import TestCase
-
 from datetime import datetime
-
-from scrapy.settings import Settings
+from unittest import TestCase
 from unittest.mock import MagicMock, patch
 
 import scrapter.updater
 from scrapter.updates_register import Crawl, CrawlStatus
+from scrapy.settings import Settings
 
 
 class SpiderExample:
@@ -41,6 +39,9 @@ class TestUpdater(TestCase):
 
         spiders = ['spider1', 'spider2']
         settings = Settings({
+            'MONGO_HOST': None,
+            'MONGO_PORT': None,
+            'MONGO_DB': None,
             'SPIDERS': spiders
         })
         self.updater = scrapter.updater.Updater(settings)
@@ -50,6 +51,12 @@ class TestUpdater(TestCase):
         self.crawl_patcher.stop()
         self.register_patcher.stop()
         self.load_spider_patcher.stop()
+    
+    def test_can_not_create_with_missing_settings(self):
+        settings = Settings({
+        })
+        with self.assertRaises(scrapter.updater.MissingSetting):
+            scrapter.updater.Updater(settings)
 
     def test_can_create(self):
         register = self.register_mock.return_value
