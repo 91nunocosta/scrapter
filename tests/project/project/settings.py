@@ -92,3 +92,4 @@ ROBOTSTXT_OBEY = True
 MONGO_HOST="localhost"
 MONGO_PORT=27017
 MONGO_DB="items"
+SPIDERS=['example']
