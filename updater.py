@@ -21,11 +21,11 @@ class Updater:
         self.settings = settings
         self.spiders = settings.get('SPIDERS')
         self.register = MongoUpdatesRegister(settings)
+        self.register.open_db()
         self.spider_loader = SpiderLoader(settings)
         self.last = self.register.last(self.spiders)
 
     def start(self):
-        self.register.open_db()
         process = CrawlerProcess(self.settings)
         for spider in self.spiders:
             kwargs = self._spider_args(spider)
