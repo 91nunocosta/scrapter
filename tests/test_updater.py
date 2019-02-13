@@ -50,9 +50,11 @@ class TestUpdater(TestCase):
         self.crawl_patcher.stop()
         self.register_patcher.stop()
         self.load_spider_patcher.stop()
-
+    
     def test_can_start(self):
         self.updater.start()
+        register = self.register_mock.return_value
+        register.open_db.assert_called()
         crawl_process = self.crawl_mock.return_value
         crawl_process.crawl.assert_any_call('spider1')
         crawl_process.crawl.assert_any_call('spider2')

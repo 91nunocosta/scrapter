@@ -25,6 +25,7 @@ class Updater:
         self.last = self.register.last(self.spiders)
 
     def start(self):
+        self.register.open_db()
         process = CrawlerProcess(self.settings)
         for spider in self.spiders:
             kwargs = self._spider_args(spider)
