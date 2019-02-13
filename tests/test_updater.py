@@ -56,7 +56,7 @@ class TestUpdater(TestCase):
         register.open_db.assert_called()
     
     def test_can_start(self):
-        self.updater.start()
+        self.updater.run()
         crawl_process = self.crawl_mock.return_value
         crawl_process.crawl.assert_any_call('spider1')
         crawl_process.crawl.assert_any_call('spider2')
@@ -65,7 +65,7 @@ class TestUpdater(TestCase):
     def test_can_register_successful_update(self):
         register = self.register_mock.return_value
         register.start = MagicMock(return_value='1')
-        self.updater.start()
+        self.updater.run()
         register.start.assert_called_with(['spider1', 'spider2'])
         register.succeed.assert_called_with('1')
 
@@ -93,7 +93,7 @@ class TestUpdater(TestCase):
                                            )
         spider_loader.load.return_value = SpiderExampleWithLast
         self.updater.spiders = ['spider']
-        self.updater.start()
+        self.updater.run()
         crawl_process.crawl.assert_called_with('spider', last=start)
 
     def test_can_check_if_failed(self):
@@ -111,5 +111,5 @@ class TestUpdater(TestCase):
         register = self.register_mock.return_value
         register.start.return_value = '2'
         self.updater._failed = MagicMock(return_value=True)
-        self.updater.start()
+        self.updater.run()
         register.fail.assert_called_with('2')

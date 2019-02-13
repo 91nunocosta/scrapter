@@ -3,4 +3,4 @@ from scrapter.updater import Updater
 
 
 updater = Updater(get_project_settings())
-updater.start()
+updater.run()
