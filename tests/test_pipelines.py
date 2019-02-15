@@ -16,7 +16,7 @@ class SpiderExample(Spider):
 
 class UpdatePipelineExample(scrapter.pipelines.UpdatePipeline):
 
-    parameters = ['p1', 'p2', 'p3']
+    REQUIRED_PARAMETERS = ['p1', 'p2', 'p3']
 
     def __init__(self, config):
         super().__init__(config)
@@ -84,6 +84,15 @@ class TestMongoUpdatePipeline(TestCase):
         }
         self.pipeline = scrapter.pipelines.MongoUpdatePipeline(config)
         self.assertDictEqual(self.pipeline.config, config)
+    
+    def test_from_crawler(self):
+        settings = Settings({
+            'MONGO_HOST': 'mongo',
+            'MONGO_PORT': 27017,
+            'MONGO_DB': 'db'
+        })
+        crawler = Crawler(SpiderExample, settings=settings) 
+        scrapter.pipelines.MongoUpdatePipeline.from_crawler(crawler)
 
     @mongomock.patch(servers=(('mongodb', 27017),))
     def test_can_open_db(self):

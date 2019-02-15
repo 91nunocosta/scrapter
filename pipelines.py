@@ -9,7 +9,7 @@ class UpdatePipeline():
     @classmethod
     def from_crawler(cls, crawler):
         config = {}
-        for parameter in cls.parameters:
+        for parameter in cls.REQUIRED_PARAMETERS:
             config[parameter] = crawler.settings.get(parameter)
         return cls(config)
 
