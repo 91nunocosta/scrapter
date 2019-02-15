@@ -24,4 +24,7 @@ class TestScrapter(TestCase):
         execute()
         os.chdir(start_directory)
         self.__get_db()
-        print(self.database['items'].find({}))
+        found_items = self.database['items'].find({
+            'name': 'item1'
+        })
+        self.assertGreater(found_items.count(), 0)
