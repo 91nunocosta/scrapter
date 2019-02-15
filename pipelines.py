@@ -22,7 +22,7 @@ class UpdatePipeline():
     def close_spider(self, spider):
         self.close_db()
 
-    def process_item(self, item):
+    def process_item(self, item, spider):
         self.update(item)
 
     def open_db(self):

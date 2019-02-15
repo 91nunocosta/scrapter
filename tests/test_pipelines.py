@@ -38,6 +38,7 @@ class TestUpdatePipeline(TestCase):
 
     def setUp(self):
         self.update_pipeline = UpdatePipelineExample({})
+        self.spider = SpiderExample('example')
 
     def test_can_be_created_from_crawler(self):
         config = {
@@ -59,7 +60,7 @@ class TestUpdatePipeline(TestCase):
         self.assertTrue(self.update_pipeline.closed)
 
     def test_can_process_item(self):
-        self.update_pipeline.process_item('item')
+        self.update_pipeline.process_item('item', self.spider)
         self.assertEqual(self.update_pipeline.updated, 'item')
 
 
