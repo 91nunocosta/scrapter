@@ -33,24 +33,26 @@ class TestScrapter(TestCase):
         self.start_directory = os.getcwd()
         os.chdir(PROJECT_DIR)
         self.__get_db()
-        self.database['items'].drop()
-        self.database['updates'].drop()
+        self.items = self.database['items']
+        self.updates = self.database['updates']
+        self.items.drop()
+        self.updates.drop()
 
     def tearDown(self):
         os.chdir(self.start_directory)
 
     def __create_previous_update(self):
-        self.database['updates'].insert_one({
+        self.updates.insert_one({
             'spiders': [['example']],
             'status': 'success',
             'start': self.LAST_START,
             'end': self.LAST_END
         })
-        self.database['items'].insert_one({
+        self.items.insert_one({
             'name': 'item1',
             'category': 'updated'
         })
-        self.database['items'].insert_one({
+        self.items.insert_one({
             'name': 'item2',
             'category': 'non_updated'
         })
@@ -60,14 +62,14 @@ class TestScrapter(TestCase):
         started = datetime.now()
         execute()
         ended = datetime.now()
-        items = self.database['items'].find()
+        items = self.items.find()
         self.assertEqual(items.count(), 3)
-        non_updated_item = self.database['items'].find({'name': 'item2'})[0]
+        non_updated_item = self.items.find({'name': 'item2'})[0]
         self.assertNotIn('_updated', non_updated_item)
-        updated_item = self.database['items'].find({'name': 'item1'})[0]
+        updated_item = self.items.find({'name': 'item1'})[0]
         self.assertEqual(updated_item['last'], self.LAST_START)
         self.assertAlmostEqual(updated_item['_updated'], started, delta=timedelta(seconds=1))
-        updates = self.database['updates'].find().sort('start', pymongo.DESCENDING)
+        updates = self.updates.find().sort('start', pymongo.DESCENDING)
         self.assertEqual(updates.count(), 2)
         last_update = updates[0]
         self.assertEqual(last_update['spiders'], [['example']])
