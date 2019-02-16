@@ -2,21 +2,23 @@ from datetime import datetime
 from unittest import TestCase
 from unittest.mock import MagicMock, patch
 
+import scrapy
 import scrapter.updater
 from scrapter.updates_register import Crawl, CrawlStatus
 from scrapy.settings import Settings
 
 
-class SpiderExample:
+class SpiderExample(scrapy.Spider):
 
-    def __init__(self):
-        pass
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
 
 
-class SpiderExampleWithLast:
+class SpiderExampleWithLast(scrapy.Spider):
 
-    def __init__(self, last=None):
-        pass
+    def __init__(self, last=None, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
 
 
 class TestUpdater(TestCase):

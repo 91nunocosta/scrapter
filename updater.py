@@ -57,7 +57,7 @@ class Updater:
         return kwargs
 
     def _accepts_last(self, cls):
-        spider_parameters = signature(cls).parameters
+        spider_parameters = signature(cls.__init__).parameters
         return 'last' in spider_parameters
 
     def _failed(self, process):
