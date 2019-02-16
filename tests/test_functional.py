@@ -24,6 +24,7 @@ class TestScrapter(TestCase):
 
     LAST_START = datetime(2018,1,1,0, 0, 0)
     LAST_END = datetime(2018,1,1,0, 0, 0)
+    MARGIN = timedelta(seconds=5)
 
     def __get_db(self):
         client = MongoClient(host=MONGO_HOST, port=MONGO_PORT)
@@ -74,13 +75,13 @@ class TestScrapter(TestCase):
         new_item = self.items.find({'name': 'new_item'})[0]
         self.assertNotIn('_updated', old_item)
         self.assertEqual(updated_item['last'], self.LAST_START)
-        self.assertAlmostEqual(updated_item['_updated'], started, delta=timedelta(seconds=1))
+        self.assertAlmostEqual(updated_item['_updated'], started, delta=self.MARGIN)
         self.assertNotIn('_updated', non_updated_item)
-        self.assertAlmostEqual(new_item['_updated'], started, delta=timedelta(seconds=1))
+        self.assertAlmostEqual(new_item['_updated'], started, delta=self.MARGIN)
         updates = self.updates.find().sort('start', pymongo.DESCENDING)
         self.assertEqual(updates.count(), 2)
         last_update = updates[0]
         self.assertEqual(last_update['spiders'], [['example']])
-        self.assertAlmostEqual(last_update['start'], started, delta=timedelta(seconds=1))
-        self.assertAlmostEqual(last_update['end'], ended, delta=timedelta(seconds=1))
+        self.assertAlmostEqual(last_update['start'], started, delta=self.MARGIN)
+        self.assertAlmostEqual(last_update['end'], ended, delta=self.MARGIN)
         self.assertEqual(last_update['status'], 'success')
