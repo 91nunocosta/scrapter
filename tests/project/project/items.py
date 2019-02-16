@@ -13,4 +13,5 @@ class ProjectItem(scrapter.UpdatableItem):
     collection = 'items'
 
     name = scrapy.Field(key=True)
+    index = scrapy.Field(key=True)
     last = scrapy.Field()

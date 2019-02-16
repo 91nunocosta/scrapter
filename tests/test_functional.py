@@ -50,9 +50,15 @@ class TestScrapter(TestCase):
         })
         self.items.insert_one({
             'name': 'old_item',
+            'index': 1
         })
         self.items.insert_one({
             'name': 'updated_item',
+            'index': 1
+        })
+        self.items.insert_one({
+            'name': 'updated_item',
+            'index': 2
         })
 
     def test_step(self):
@@ -61,13 +67,15 @@ class TestScrapter(TestCase):
         execute()
         ended = datetime.now()
         items = self.items.find()
-        self.assertEqual(items.count(), 3)
+        self.assertEqual(items.count(), 4)
         old_item = self.items.find({'name': 'old_item'})[0]
-        updated_item = self.items.find({'name': 'updated_item'})[0]
+        updated_item = self.items.find({'name': 'updated_item', 'index': 1})[0]
+        non_updated_item = self.items.find({'name': 'updated_item', 'index': 2})[0]
         new_item = self.items.find({'name': 'new_item'})[0]
         self.assertNotIn('_updated', old_item)
         self.assertEqual(updated_item['last'], self.LAST_START)
         self.assertAlmostEqual(updated_item['_updated'], started, delta=timedelta(seconds=1))
+        self.assertNotIn('_updated', non_updated_item)
         self.assertAlmostEqual(new_item['_updated'], started, delta=timedelta(seconds=1))
         updates = self.updates.find().sort('start', pymongo.DESCENDING)
         self.assertEqual(updates.count(), 2)
