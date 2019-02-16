@@ -62,9 +62,9 @@ class TestScrapter(TestCase):
         ended = datetime.now()
         items = self.database['items'].find()
         self.assertEqual(items.count(), 3)
-        updated_items = self.database['items'].find({'category': 'updated'})
-        self.assertEqual(updated_items.count(), 1)
-        updated_item = updated_items[0]
+        non_updated_item = self.database['items'].find({'name': 'item2'})[0]
+        self.assertNotIn('_updated', non_updated_item)
+        updated_item = self.database['items'].find({'name': 'item1'})[0]
         self.assertEqual(updated_item['last'], self.LAST_START)
         self.assertAlmostEqual(updated_item['_updated'], started, delta=timedelta(seconds=1))
         updates = self.database['updates'].find().sort('start', pymongo.DESCENDING)
