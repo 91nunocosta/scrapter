@@ -16,6 +16,7 @@ class TestMongoUpdatesRegister(TestCase):
     @mongomock.patch(servers=(('mongodb', 27017),))
     def setUp(self):
         import scrapter
+        scrapter.mongo.MongoClient = mongomock.MongoClient
         scrapter.mongo_updates_register.MongoClient = mongomock.MongoClient
         config = {
             'MONGO_HOST': 'mongodb',
@@ -27,6 +28,7 @@ class TestMongoUpdatesRegister(TestCase):
 
     @mongomock.patch(servers=(('mongodb', 27017),))
     def test_can_open_db(self):
+        self.maxDiff = None
         self.assertIsNotNone(self.register.database)
         self.assertEqual(self.register.database.name, 'db')
         self.assertEqual(self.register.database.client.host, 'mongodb')
@@ -64,12 +66,12 @@ class TestMongoUpdatesRegister(TestCase):
     @mongomock.patch(servers=(('mongodb', 27017),))
     def test_can_start(self):
         start_date = datetime.now()
-        _id = self.register.start('spider1')
+        _id = self.register.start(['spider1', 'spider2'])
         self.assertIsInstance(_id, ObjectId)
         registers = list(self.register.database['updates'].find())
         self.assertEqual(len(registers), 1)
         register = registers[0]
-        self.assertListEqual(register['spiders'], ['spider1'])
+        self.assertListEqual(register['spiders'], ['spider1', 'spider2'])
         self.assertEqual(register['status'], CrawlStatus.STARTED.value)
         self.assertAlmostEqual(
             register['start'], start_date, delta=timedelta(seconds=1))

@@ -20,9 +20,9 @@ class MongoUpdatesRegister(ConfiguredMongoMixin):
         self.config = config
         self.database = None
 
-    def start(self, spider):
+    def start(self, spiders):
         return self.get_updates().insert_one({
-            'spiders': [spider],
+            'spiders': spiders,
             'status': CrawlStatus.STARTED.value,
             'start': datetime.now()
         }).inserted_id

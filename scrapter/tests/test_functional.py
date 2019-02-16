@@ -44,7 +44,7 @@ class TestScrapter(TestCase):
 
     def __create_previous_update(self):
         self.updates.insert_one({
-            'spiders': [['example', 'example2']],
+            'spiders': ['example', 'example2'],
             'status': 'success',
             'start': self.LAST_START,
             'end': self.LAST_END
@@ -81,7 +81,7 @@ class TestScrapter(TestCase):
         updates = self.updates.find().sort('start', pymongo.DESCENDING)
         self.assertEqual(updates.count(), 2)
         last_update = updates[0]
-        self.assertEqual(last_update['spiders'], [['example', 'example2']])
+        self.assertEqual(last_update['spiders'], ['example', 'example2'])
         self.assertAlmostEqual(last_update['start'], started, delta=self.MARGIN)
         self.assertAlmostEqual(last_update['end'], ended, delta=self.MARGIN)
         self.assertEqual(last_update['status'], 'success')
