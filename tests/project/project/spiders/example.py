@@ -15,8 +15,5 @@ class ExampleSpider(scrapy.Spider):
         self.last = last
 
     def parse(self, response):
-        yield ProjectItem(name='item1', category='updated', last=self.last)
-        now = datetime.now()
-        timestamp = datetime.timestamp(now)
-        name = 'item' + str(timestamp)
-        yield ProjectItem(name=name, category='non_updated')
+        yield ProjectItem(name='updated_item', last=self.last)
+        yield ProjectItem(name='new_item')
