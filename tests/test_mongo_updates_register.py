@@ -22,7 +22,8 @@ class TestMongoUpdatesRegister(TestCase):
             'MONGO_PORT': 27017,
             'MONGO_DB': 'db'
         }
-        self.register = scrapter.mongo_updates_register.MongoUpdatesRegister(config)
+        self.register = scrapter.mongo_updates_register.MongoUpdatesRegister(
+            config)
         self.register.open_db()
 
     @mongomock.patch(servers=(('mongodb', 27017),))
@@ -92,7 +93,10 @@ class TestMongoUpdatesRegister(TestCase):
     def test_can_succeed(self):
         _id, start_date = self.create_update()
         end_date = datetime.now()
-        self.register.succeed(_id)
+        stats = {
+            's1': 1,
+        }
+        self.register.succeed(_id, stats)
         registers = list(self.register.database['updates'].find({'_id': _id}))
         self.assertEqual(len(registers), 1)
         register = registers[0]
@@ -102,12 +106,16 @@ class TestMongoUpdatesRegister(TestCase):
             register['start'], start_date, delta=timedelta(seconds=1))
         self.assertAlmostEqual(
             register['end'], end_date, delta=timedelta(seconds=1))
+        self.assertDictEqual(register['stats'], stats)
 
     @mongomock.patch(servers=(('mongodb', 27017),))
     def test_can_fail(self):
         _id, start_date = self.create_update()
         end_date = datetime.now()
-        self.register.fail(_id)
+        stats = {
+            's1': 1,
+        }
+        self.register.fail(_id, stats)
         registers = list(self.register.database['updates'].find({'_id': _id}))
         self.assertEqual(len(registers), 1)
         register = registers[0]
@@ -117,6 +125,7 @@ class TestMongoUpdatesRegister(TestCase):
             register['start'], start_date, delta=timedelta(seconds=1))
         self.assertAlmostEqual(
             register['end'], end_date, delta=timedelta(seconds=1))
+        self.assertDictEqual(register['stats'], stats)
 
     @mongomock.patch(servers=(('mongodb', 27017),))
     def test_can_get_last(self):
@@ -126,31 +135,36 @@ class TestMongoUpdatesRegister(TestCase):
                 'spiders': ['spider1', 'spider4', 'spider5'],
                 'status': CrawlStatus.SUCCESS.value,
                 'start': datetime(2018, 1, 1, 1),
-                'end': end_date
+                'end': end_date,
+                'stats': {}
             },
             {
                 'spiders': ['spider1', 'spider3', 'spider4'],
                 'status': CrawlStatus.SUCCESS.value,
                 'start': datetime(2018, 1, 1, 2),
-                'end': end_date
+                'end': end_date,
+                'stats': {'s1': 1}
             },
             {
                 'spiders': ['spider1', 'spider4'],
                 'status': CrawlStatus.FAILED.value,
                 'start': datetime(2018, 1, 1, 3),
-                'end': end_date
+                'end': end_date,
+                'stats': {}
             },
             {
                 'spiders': ['spider1', 'spider2', 'spider3'],
                 'status': CrawlStatus.STARTED.value,
                 'start': datetime(2018, 1, 1, 4),
-                'end': end_date
+                'end': end_date,
+                'stats': {}
             },
             {
                 'spiders': ['spider2', 'spider3', 'spider4'],
                 'status': CrawlStatus.SUCCESS.value,
                 'start': datetime(2018, 1, 1, 5),
-                'end': end_date
+                'end': end_date,
+                'stats': {}
             }
         ]
         self.register.database['updates'].insert_many(updates)
@@ -159,6 +173,7 @@ class TestMongoUpdatesRegister(TestCase):
         self.assertEqual(last.status, CrawlStatus.SUCCESS)
         self.assertEqual(last.start, datetime(2018, 1, 1, 2))
         self.assertEqual(last.end, datetime(2018, 1, 1, 12))
+        self.assertDictEqual(last.stats, {'s1': 1})
 
     @mongomock.patch(servers=(('mongodb', 27017),))
     def test_can_get_last_without_no_succeed(self):

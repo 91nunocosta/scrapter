@@ -27,7 +27,7 @@ class MongoUpdatesRegister(ConfiguredMongoMixin):
             'start': datetime.now()
         }).inserted_id
 
-    def fail(self, _id):
+    def fail(self, _id, stats):
         self.get_updates().update_one(
             {'_id': _id},
             {
@@ -38,7 +38,7 @@ class MongoUpdatesRegister(ConfiguredMongoMixin):
             }
         )
 
-    def succeed(self, _id):
+    def succeed(self, _id, stats):
         self.get_updates().update_one(
             {'_id': _id},
             {
@@ -61,7 +61,8 @@ class MongoUpdatesRegister(ConfiguredMongoMixin):
             update['spiders'],
             CrawlStatus(update['status']),
             update['start'],
-            update['end']
+            update['end'],
+            update['stats']
         )
 
     def get_updates(self):

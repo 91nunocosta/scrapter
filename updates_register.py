@@ -8,11 +8,12 @@ class CrawlStatus(Enum):
 
 class Crawl:
 
-    def __init__(self, spiders, status, start, end):
+    def __init__(self, spiders, status, start, end, stats):
         self.spiders = spiders
         self.status = status
         self.start = start
         self.end = end
+        self.stats = stats
 
 class UpdatesRegister:
 
