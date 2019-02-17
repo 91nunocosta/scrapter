@@ -1,7 +1,6 @@
 from enum import Enum
 
 class CrawlStatus(Enum):
-    CREATED = 'created'
     STARTED = 'started'
     SUCCESS = 'success'
     FAILED = 'failed'
@@ -9,14 +8,22 @@ class CrawlStatus(Enum):
 
 class Crawl:
 
-    def __init__(self, spider):
-        self.spider = spider
-
+    def __init__(self, spiders, status, start, end):
+        self.spiders = spiders
+        self.status = status
+        self.start = start
+        self.end = end
 
 class UpdatesRegister:
 
-    def __init__(self, db_config):
-        self.db_config = db_config
+    def __init__(self, config):
+        self.config = config
+
+    def open_db(self):
+        pass
+
+    def close_db(self):
+        pass
 
     def start(self, spider):
         pass
