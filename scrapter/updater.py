@@ -30,7 +30,6 @@ class Updater:
         self.register = MongoUpdatesRegister(settings)
         self.register.open_db()
         self.spider_loader = SpiderLoader(settings)
-        self.last = self.register.last(self.spiders)
 
     def __validate_settings(self, settings):
         for parameter in Updater.REQUIRED_PARAMETERS:
@@ -53,7 +52,9 @@ class Updater:
         spider_cls = self.spider_loader.load(spider)
         kwargs = {}
         if self._accepts_last(spider_cls):
-            kwargs['last'] = self.last.start
+            last = self.register.last(spider)
+            if last is not None:
+                kwargs['last'] = last.start
         return kwargs
 
     def _accepts_last(self, cls):

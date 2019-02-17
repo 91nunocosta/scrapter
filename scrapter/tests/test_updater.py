@@ -1,6 +1,6 @@
 from datetime import datetime
 from unittest import TestCase
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock, patch, call
 
 import scrapy
 import scrapter.updater
@@ -89,13 +89,25 @@ class TestUpdater(TestCase):
             'last': self.start
         })
 
+    def test_can_start_without_last_update(self):
+        register = self.register_mock.return_value
+        spider_loader = self.load_spider_mock.return_value
+        crawl_process = self.crawl_mock.return_value
+        start = datetime(2018, 1, 1)
+        end = datetime(2018, 2, 1)
+        register.last.return_value = None
+        spider_loader.load.return_value = SpiderExampleWithLast
+        self.updater.spiders = ['spider']
+        self.updater.run()
+        crawl_process.crawl.assert_called_with('spider')
+
     def test_can_continue_last_update(self):
         register = self.register_mock.return_value
         spider_loader = self.load_spider_mock.return_value
         crawl_process = self.crawl_mock.return_value
         start = datetime(2018, 1, 1)
         end = datetime(2018, 2, 1)
-        register.last.return_value = Crawl('spider',
+        register.last.return_value = Crawl(['spider'],
                                            CrawlStatus.SUCCESS,
                                            start,
                                            end
@@ -104,6 +116,34 @@ class TestUpdater(TestCase):
         self.updater.spiders = ['spider']
         self.updater.run()
         crawl_process.crawl.assert_called_with('spider', last=start)
+
+    
+    def test_can_continue_last_with_different_starts(self):
+        register = self.register_mock.return_value
+        spider_loader = self.load_spider_mock.return_value
+        crawl_process = self.crawl_mock.return_value
+        start = datetime(2018, 1, 1)
+        end = datetime(2018, 2, 1)
+        start2 = datetime(2018, 3, 1)
+        end2 = datetime(2018, 4, 1)
+        register.last.side_effect = [Crawl(['spider'],
+                                           CrawlStatus.SUCCESS,
+                                           start,
+                                           end
+                                           ),
+                                     Crawl(['spider2'],
+                                           CrawlStatus.SUCCESS,
+                                           start2,
+                                           end2
+                                           )
+                                    ]
+        spider_loader.load.return_value = SpiderExampleWithLast
+        self.updater.spiders = ['spider', 'spider2']
+        self.updater.run()
+        crawl_process.crawl.assert_has_calls([
+            call('spider', last=start),
+            call('spider2', last=start2)
+        ])
 
     def test_can_check_if_failed(self):
         crawler_process = self.crawl_mock.return_value
